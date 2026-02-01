@@ -3,6 +3,7 @@ import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { ExpiryTimer } from "@/components/dashboard/ExpiryTimer";
 import { TransferForm } from "@/components/dashboard/TransferForm";
 import { PriceDisplay } from "@/components/dashboard/PriceDisplay";
+import { MintPanel } from "@/components/dashboard/MintPanel";
 import { useAllBalances } from "@/hooks/web3";
 import { useWalletStore } from "@/stores/walletStore";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,6 +85,9 @@ const Index = () => {
 
         {/* Price Display */}
         <PriceDisplay />
+
+        {/* Admin Mint Panel */}
+        <MintPanel />
 
         {/* Main Grid */}
         <div className="grid lg:grid-cols-2 gap-6">

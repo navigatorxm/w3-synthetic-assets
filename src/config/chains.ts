@@ -4,11 +4,37 @@ import type { NetworkConfig } from "@/types";
 export const CHAIN_IDS = {
   ETHEREUM_MAINNET: 1,
   SEPOLIA: 11155111,
+  POLYGON_MAINNET: 137,
+  POLYGON_AMOY: 80002,
   LOCALHOST: 31337,
 } as const;
 
 // Network configurations
 export const NETWORKS: Record<number, NetworkConfig> = {
+  [CHAIN_IDS.POLYGON_MAINNET]: {
+    chainId: CHAIN_IDS.POLYGON_MAINNET,
+    name: "Polygon Mainnet",
+    rpcUrl: "https://polygon-rpc.com",
+    blockExplorerUrl: "https://polygonscan.com",
+    nativeCurrency: {
+      name: "MATIC",
+      symbol: "MATIC",
+      decimals: 18,
+    },
+    isTestnet: false,
+  },
+  [CHAIN_IDS.POLYGON_AMOY]: {
+    chainId: CHAIN_IDS.POLYGON_AMOY,
+    name: "Polygon Amoy Testnet",
+    rpcUrl: "https://rpc-amoy.polygon.technology",
+    blockExplorerUrl: "https://amoy.polygonscan.com",
+    nativeCurrency: {
+      name: "MATIC",
+      symbol: "MATIC",
+      decimals: 18,
+    },
+    isTestnet: true,
+  },
   [CHAIN_IDS.ETHEREUM_MAINNET]: {
     chainId: CHAIN_IDS.ETHEREUM_MAINNET,
     name: "Ethereum Mainnet",
@@ -47,11 +73,13 @@ export const NETWORKS: Record<number, NetworkConfig> = {
   },
 };
 
-// Default network for production
-export const DEFAULT_CHAIN_ID = CHAIN_IDS.ETHEREUM_MAINNET;
+// Default network for production - Polygon for low gas fees
+export const DEFAULT_CHAIN_ID = CHAIN_IDS.POLYGON_MAINNET;
 
 // Supported chains for the app
 export const SUPPORTED_CHAIN_IDS = [
+  CHAIN_IDS.POLYGON_MAINNET,
+  CHAIN_IDS.POLYGON_AMOY,
   CHAIN_IDS.ETHEREUM_MAINNET,
   CHAIN_IDS.SEPOLIA,
 ] as const;
