@@ -174,4 +174,47 @@
   .token-shadow {
     box-shadow: 0 4px 12px hsl(var(--primary) / 0.15);
   }
+
+  /* Mobile-optimized touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Safe area padding for mobile devices */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* Mobile card styles */
+  .mobile-card {
+    @apply p-4 md:p-6;
+  }
+
+  /* Responsive text */
+  .text-responsive-sm {
+    @apply text-sm md:text-base;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg md:text-xl lg:text-2xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+
+  /* Mobile-friendly inputs */
+  .input-mobile {
+    @apply h-12 text-base;
+  }
+
+  /* Prevent text size adjustment on mobile */
+  .mobile-text-stable {
+    -webkit-text-size-adjust: 100%;
+  }
 }

@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Send, BarChart3, Shield, Coins } from "lucide-react";
@@ -56,8 +58,11 @@ export function MainLayout({ children }: MainLayoutProps) {
             ))}
           </nav>
 
-          {/* Wallet Connection */}
-          <ConnectButton />
+          {/* Right side controls */}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <ConnectButton />
+          </div>
         </div>
       </header>
 
@@ -84,6 +89,9 @@ export function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main Content */}
       <main className="container py-6 pb-20 md:pb-6">{children}</main>
+
+      {/* AI Chat Widget */}
+      {isConnected && <ChatWidget />}
     </div>
   );
 }
