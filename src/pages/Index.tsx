@@ -2,9 +2,10 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { ExpiryTimer } from "@/components/dashboard/ExpiryTimer";
 import { TransferForm } from "@/components/dashboard/TransferForm";
+import { PriceDisplay } from "@/components/dashboard/PriceDisplay";
 import { useAllBalances } from "@/hooks/web3";
 import { useWalletStore } from "@/stores/walletStore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useWeb3 } from "@/providers/Web3Provider";
 import { Wallet, Coins, TrendingUp, Clock } from "lucide-react";
@@ -80,6 +81,9 @@ const Index = () => {
             Manage your FlashAsset token balances and transfers
           </p>
         </div>
+
+        {/* Price Display */}
+        <PriceDisplay />
 
         {/* Main Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
