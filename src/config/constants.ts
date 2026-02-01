@@ -59,6 +59,8 @@ export const STORAGE_KEYS = {
   WALLET_CONNECTOR: "flashasset_wallet_connector",
   THEME: "flashasset_theme",
   LAST_NETWORK: "flashasset_last_network",
+  ADMIN_ADDRESSES: "flashasset_admin_addresses",
+  CUSTOM_TOKENS: "flashasset_custom_tokens",
 } as const;
 
 // Query keys for TanStack Query

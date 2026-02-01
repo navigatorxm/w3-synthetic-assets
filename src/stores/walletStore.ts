@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { WalletState, PendingTransaction } from "@/types";
-import { STORAGE_KEYS, ADMIN_ADDRESSES } from "@/config/constants";
+import { STORAGE_KEYS } from "@/config/constants";
+import { isAdminAddress } from "@/config/adminConfig";
 
 interface WalletStore extends WalletState {
   // Pending transactions
@@ -24,10 +25,7 @@ function generateId(): string {
 }
 
 function checkIsAdmin(address: string | null): boolean {
-  if (!address) return false;
-  return ADMIN_ADDRESSES.some(
-    (admin) => admin.toLowerCase() === address.toLowerCase()
-  );
+  return isAdminAddress(address);
 }
 
 export const useWalletStore = create<WalletStore>()(

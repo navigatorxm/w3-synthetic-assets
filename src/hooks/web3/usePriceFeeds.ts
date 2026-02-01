@@ -37,11 +37,13 @@ export function useTokenPrice(symbol: TokenSymbol) {
       try {
         const contract = new Contract(feedAddress, CHAINLINK_AGGREGATOR_ABI, provider);
         
-        const [roundData, decimals] = await Promise.all([
+        const [roundData, decimalsResult] = await Promise.all([
           contract.latestRoundData(),
           contract.decimals(),
         ]);
 
+        // Handle BigInt from ethers v6
+        const decimals = Number(decimalsResult);
         const price = Number(roundData.answer) / Math.pow(10, decimals);
         const updatedAt = new Date(Number(roundData.updatedAt) * 1000);
 
@@ -97,11 +99,13 @@ export function useAllPrices() {
         try {
           const contract = new Contract(feedAddress, CHAINLINK_AGGREGATOR_ABI, provider);
           
-          const [roundData, decimals] = await Promise.all([
+          const [roundData, decimalsResult] = await Promise.all([
             contract.latestRoundData(),
             contract.decimals(),
           ]);
 
+          // Handle BigInt from ethers v6
+          const decimals = Number(decimalsResult);
           const price = Number(roundData.answer) / Math.pow(10, decimals);
           const updatedAt = new Date(Number(roundData.updatedAt) * 1000);
 

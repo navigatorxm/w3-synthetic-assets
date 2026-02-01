@@ -1,22 +1,76 @@
 # FlashAsset Deployment Guide
 
-## Prerequisites
+Complete step-by-step guide to deploy and configure FlashAsset for production use.
 
-- Node.js 18+ and npm/yarn/pnpm
-- Hardhat or Foundry for smart contract deployment
-- MetaMask or similar wallet with ETH for gas
-- Access to Ethereum RPC endpoints
+## Quick Start (3 Steps)
 
-## Smart Contract Deployment
+### Step 1: Deploy Smart Contracts
 
-### 1. Install Dependencies
+You need to deploy the FlashToken contracts to your target network (Sepolia for testing, Mainnet for production).
+
+**Prerequisites:**
+- Node.js 18+
+- MetaMask with ETH for gas
+- Alchemy/Infura RPC endpoint
+
+**Deploy using Hardhat:**
 
 ```bash
+# Clone and setup
 cd contracts
-npm install @openzeppelin/contracts hardhat @nomicfoundation/hardhat-toolbox
+npm install
+
+# Create .env file
+cat > .env << EOF
+SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
+PRIVATE_KEY=your_deployer_private_key
+ETHERSCAN_API_KEY=your_etherscan_key
+EOF
+
+# Deploy to Sepolia
+npx hardhat run scripts/deploy.ts --network sepolia
 ```
 
-### 2. Configure Hardhat
+**Example output:**
+```
+Deploying with: 0x742d35Cc6634C0532925a3b844Bc454e4438f44e
+FlashFactory deployed to: 0x1234567890abcdef...
+USDT deployed to: 0xabcdef1234567890...
+```
+
+**Save these addresses** - you'll need them in Step 2.
+
+### Step 2: Configure the Admin Panel
+
+1. Open the FlashAsset Admin Panel
+2. Connect your deployer wallet (MetaMask)
+3. Go to **Settings** tab
+
+**Add Your Admin Address:**
+- Paste your wallet address
+- Click "Add"
+
+**Add Your Token Contracts:**
+- Click "Add Token"
+- Enter: Symbol (e.g., `USDT`), Name (e.g., `Flash USDT`), Decimals (`6`)
+- Select Network: Sepolia or Mainnet
+- Paste the deployed contract address
+- Click "Save Token"
+
+### Step 3: Start Minting!
+
+1. Go to **Mint** tab
+2. Select your token
+3. Enter recipient (click "Self" for your own wallet)
+4. Set amount and expiry days
+5. Click "Mint Tokens"
+6. Confirm in MetaMask
+
+---
+
+## Detailed Contract Deployment
+
+### Hardhat Configuration
 
 Create `hardhat.config.ts`:
 
@@ -31,10 +85,7 @@ const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.20",
     settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
-      },
+      optimizer: { enabled: true, runs: 200 },
     },
   },
   networks: {
@@ -55,7 +106,7 @@ const config: HardhatUserConfig = {
 export default config;
 ```
 
-### 3. Create Deployment Script
+### Deployment Script
 
 Create `scripts/deploy.ts`:
 
@@ -70,7 +121,8 @@ async function main() {
   const FlashFactory = await ethers.getContractFactory("FlashFactory");
   const factory = await FlashFactory.deploy();
   await factory.waitForDeployment();
-  console.log("FlashFactory deployed to:", await factory.getAddress());
+  const factoryAddress = await factory.getAddress();
+  console.log("FlashFactory deployed to:", factoryAddress);
 
   // Create tokens
   const tokens = [
@@ -79,12 +131,19 @@ async function main() {
     { name: "Flash ETH", symbol: "ETH", decimals: 18 },
   ];
 
+  console.log("\nDeploying tokens...");
   for (const token of tokens) {
     const tx = await factory.createToken(token.name, token.symbol, token.decimals);
     await tx.wait();
     const tokenAddress = await factory.getToken(token.symbol);
     console.log(`${token.symbol} deployed to:`, tokenAddress);
   }
+
+  console.log("\n✅ Deployment complete!");
+  console.log("\nNext steps:");
+  console.log("1. Open the Admin Panel");
+  console.log("2. Add your wallet as admin in Settings");
+  console.log("3. Add token contracts with the addresses above");
 }
 
 main().catch((error) => {
@@ -93,148 +152,135 @@ main().catch((error) => {
 });
 ```
 
-### 4. Deploy to Testnet
+### Verify Contracts (Optional)
 
 ```bash
-# Set environment variables
-export SEPOLIA_RPC_URL="https://rpc.sepolia.org"
-export PRIVATE_KEY="your-private-key"
-export ETHERSCAN_API_KEY="your-api-key"
-
-# Deploy
-npx hardhat run scripts/deploy.ts --network sepolia
-
-# Verify contracts
 npx hardhat verify --network sepolia FACTORY_ADDRESS
+npx hardhat verify --network sepolia TOKEN_ADDRESS "Flash USDT" "USDT" 6
 ```
 
-### 5. Update Frontend Configuration
+---
 
-After deployment, update `src/config/contracts.ts` with the deployed addresses:
+## Network Configuration
 
-```typescript
-export const CONTRACT_ADDRESSES: Record<number, Record<TokenSymbol, string>> = {
-  [CHAIN_IDS.ETHEREUM_MAINNET]: {
-    USDT: "0x...", // Replace with actual address
-    BTC: "0x...",
-    ETH: "0x...",
-  },
-  [CHAIN_IDS.SEPOLIA]: {
-    USDT: "0x...", // Replace with actual address
-    BTC: "0x...",
-    ETH: "0x...",
-  },
-};
+### Supported Networks
 
-export const FACTORY_ADDRESSES: Record<number, string> = {
-  [CHAIN_IDS.ETHEREUM_MAINNET]: "0x...",
-  [CHAIN_IDS.SEPOLIA]: "0x...",
-};
+| Network | Chain ID | RPC Endpoint |
+|---------|----------|--------------|
+| Ethereum Mainnet | 1 | https://eth-mainnet.g.alchemy.com/v2/KEY |
+| Sepolia Testnet | 11155111 | https://eth-sepolia.g.alchemy.com/v2/KEY |
+
+### Getting Test ETH
+
+For Sepolia testnet:
+1. Visit [Alchemy Sepolia Faucet](https://sepoliafaucet.com/)
+2. Or [Infura Sepolia Faucet](https://www.infura.io/faucet/sepolia)
+3. Enter your wallet address
+4. Wait for 0.5 ETH to arrive
+
+---
+
+## Custom Token Setup
+
+### Token Decimals Guide
+
+| Token Type | Recommended Decimals | Example Amount |
+|------------|---------------------|----------------|
+| Stablecoins (USDT, USDC) | 6 | 1000.000000 |
+| Bitcoin-like | 8 | 1.00000000 |
+| ETH-like | 18 | 1.000000000000000000 |
+
+### Adding Custom Tokens
+
+You can add any token symbol you want:
+
+1. Deploy a new token via the Factory contract:
+```javascript
+await factory.createToken("Flash GOLD", "GOLD", 8);
 ```
 
-## Admin Configuration
-
-Update `src/config/constants.ts` with admin wallet addresses:
-
-```typescript
-export const ADMIN_ADDRESSES: string[] = [
-  "0x...", // Your admin wallet address
-  // Add more admin addresses as needed
-];
+2. Get the token address:
+```javascript
+const goldAddress = await factory.getToken("GOLD");
 ```
 
-## Backend Event Indexer
+3. Add it in the Admin Panel Settings
 
-For production, set up a Node.js service to index blockchain events:
-
-```typescript
-// Example indexer service structure
-import { ethers } from "ethers";
-import { FLASH_TOKEN_ABI, CONTRACT_ADDRESSES } from "./config";
-
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-
-async function indexEvents() {
-  const symbols = ["USDT", "BTC", "ETH"];
-  
-  for (const symbol of symbols) {
-    const address = CONTRACT_ADDRESSES[1][symbol];
-    const contract = new ethers.Contract(address, FLASH_TOKEN_ABI, provider);
-    
-    // Listen for events
-    contract.on("TokenMinted", async (to, amount, expiry, event) => {
-      // Call sync-events edge function
-      await fetch(`${SUPABASE_URL}/functions/v1/sync-events`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          action: "sync_transaction",
-          data: {
-            tx_hash: event.transactionHash,
-            block_number: event.blockNumber,
-            tx_type: "mint",
-            token_symbol: symbol,
-            from_address: ethers.ZeroAddress,
-            to_address: to,
-            amount: amount.toString(),
-            expiry_timestamp: Number(expiry),
-            chain_id: 1,
-          },
-        }),
-      });
-    });
-    
-    // Similar listeners for Transfer and TokenBurned events
-  }
-}
-```
+---
 
 ## Production Checklist
 
 ### Security
-- [ ] Smart contracts audited by reputable firm
-- [ ] Admin keys stored in hardware wallet
+- [ ] Store deployer private key in hardware wallet
+- [ ] Use multi-sig for admin operations (recommended)
+- [ ] Contracts audited before mainnet deployment
 - [ ] RPC endpoints use authenticated access
-- [ ] Rate limiting on edge functions
-- [ ] Monitoring and alerting configured
-
-### Infrastructure
-- [ ] Multi-region backend deployment
-- [ ] CDN for frontend assets
-- [ ] Database backups enabled
-- [ ] SSL/TLS configured
-- [ ] DDoS protection active
 
 ### Testing
-- [ ] Unit tests passing
-- [ ] Integration tests on testnet
-- [ ] Load testing completed
-- [ ] Security penetration testing done
+- [ ] Full test on Sepolia before mainnet
+- [ ] Test mint, transfer, and expiry flows
+- [ ] Verify contract source on Etherscan
 
-### Documentation
-- [ ] API documentation published
-- [ ] User guides created
-- [ ] Admin manual complete
-- [ ] Incident response plan ready
+### Monitoring
+- [ ] Set up block explorer alerts
+- [ ] Monitor gas prices for transactions
+- [ ] Track token holder addresses
 
-## Environment Variables
+---
 
-Required environment variables for production:
+## Troubleshooting
 
-```env
-# Backend (Edge Functions)
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-key
+### "Contract not available"
+- Ensure you've added the token in Settings
+- Check you're on the correct network
+- Verify the contract address is correct
 
-# Indexer Service
-RPC_URL=https://eth-mainnet.your-provider.io/v3/your-key
-PRIVATE_KEY=your-indexer-private-key
+### "Admin privileges required"
+- Add your wallet address in Settings → Admin Addresses
+- Ensure your connected wallet matches the admin list
 
-# Frontend (Vite)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+### Transaction fails
+- Check you have enough ETH for gas
+- Verify recipient address is valid
+- For transfers: ensure tokens haven't expired
+
+### Tokens not showing balance
+- Wait for block confirmation (~15 seconds)
+- Click refresh button on balance display
+- Check correct network is selected
+
+---
+
+## Architecture Overview
+
 ```
+┌─────────────────────────────────────────────┐
+│              FlashAsset Admin               │
+│  ┌─────────┐ ┌──────────┐ ┌──────────────┐  │
+│  │  Mint   │ │ Transfer │ │   Settings   │  │
+│  └────┬────┘ └────┬─────┘ └──────┬───────┘  │
+│       │           │              │          │
+│       └───────────┼──────────────┘          │
+│                   ▼                         │
+│         ┌─────────────────┐                 │
+│         │ Token Contracts │                 │
+│         │ (FlashToken)    │                 │
+│         └────────┬────────┘                 │
+│                  │                          │
+│                  ▼                          │
+│         ┌─────────────────┐                 │
+│         │  FlashFactory   │                 │
+│         │  (Deployment)   │                 │
+│         └─────────────────┘                 │
+└─────────────────────────────────────────────┘
+                   │
+                   ▼
+          [ Ethereum Network ]
+```
+
+## Support
+
+For issues or questions:
+1. Check the troubleshooting section above
+2. Review contract deployment logs
+3. Verify network and address configurations
