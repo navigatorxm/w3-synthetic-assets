@@ -1,12 +1,12 @@
 import { MainLayout } from "@/components/layout/MainLayout";
 import { MintForm } from "@/components/admin/MintForm";
 import { BurnPanel } from "@/components/admin/BurnPanel";
+import { TransferabilityPanel } from "@/components/admin/TransferabilityPanel";
 import { useWalletStore } from "@/stores/walletStore";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useWeb3 } from "@/providers/Web3Provider";
 import { Shield, Wallet, AlertTriangle } from "lucide-react";
-import { Navigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
   const { connect } = useWeb3();
@@ -61,10 +61,25 @@ const Admin = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          <MintForm />
-          <BurnPanel />
-        </div>
+        <Tabs defaultValue="minting" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
+            <TabsTrigger value="minting">Token Minting</TabsTrigger>
+            <TabsTrigger value="burning">Burn Tokens</TabsTrigger>
+            <TabsTrigger value="transfers">Transferability</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="minting" className="mt-6">
+            <MintForm />
+          </TabsContent>
+
+          <TabsContent value="burning" className="mt-6">
+            <BurnPanel />
+          </TabsContent>
+
+          <TabsContent value="transfers" className="mt-6">
+            <TransferabilityPanel />
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
