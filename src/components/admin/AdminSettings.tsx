@@ -41,10 +41,12 @@ import {
 } from "@/config/adminConfig";
 import { CHAIN_IDS, NETWORKS } from "@/config/chains";
 import { ethereumAddressSchema } from "@/types";
-import { Settings, Plus, Trash2, Shield, Coins, Copy, Check, ExternalLink } from "lucide-react";
+import { Settings, Plus, Trash2, Shield, Coins, Copy, Check, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { TokenIconUpload } from "./TokenIconUpload";
 import { HelpTooltip, helpContent } from "./HelpTooltip";
+import { ContractStatusBadge } from "./ContractStatusBadge";
+import { JsonRpcProvider } from "ethers";
 
 export function AdminSettings() {
   const [adminAddresses, setAdminAddresses] = useState<string[]>([]);
@@ -54,6 +56,7 @@ export function AdminSettings() {
   
   // Token dialog state
   const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
+  const [isValidatingContract, setIsValidatingContract] = useState(false);
   const [newToken, setNewToken] = useState<Partial<CustomToken>>({
     symbol: "",
     name: "",
@@ -102,8 +105,8 @@ export function AdminSettings() {
     toast.success("Admin address removed");
   };
 
-  const handleAddToken = () => {
-    // Validate
+  const handleAddToken = async () => {
+    // Validate required fields
     if (!newToken.symbol || !newToken.name || !newToken.contractAddress) {
       toast.error("Please fill in all required fields");
       return;
@@ -113,6 +116,42 @@ export function AdminSettings() {
     if (!result.success) {
       toast.error("Invalid contract address format");
       return;
+    }
+
+    // Validate contract deployment before saving
+    setIsValidatingContract(true);
+    try {
+      const network = NETWORKS[newToken.chainId!];
+      if (!network) {
+        toast.error("Unsupported network");
+        setIsValidatingContract(false);
+        return;
+      }
+
+      const provider = new JsonRpcProvider(network.rpcUrl);
+      const bytecode = await provider.getCode(newToken.contractAddress);
+      const isDeployed =
+        bytecode !== "0x" &&
+        bytecode !== "0x0" &&
+        !!bytecode &&
+        bytecode.length > 2;
+
+      if (!isDeployed) {
+        toast.warning(
+          `No contract detected at ${newToken.contractAddress.slice(0, 10)}... on ${network.name}. Token saved but minting won't work until contract is deployed.`,
+          { duration: 6000 }
+        );
+      } else {
+        toast.success("Contract verified and token configuration saved");
+      }
+    } catch (error) {
+      console.error("Contract validation error:", error);
+      toast.warning(
+        "Could not verify contract deployment. Token saved - please ensure contract is deployed before minting.",
+        { duration: 5000 }
+      );
+    } finally {
+      setIsValidatingContract(false);
     }
 
     saveCustomToken(newToken as CustomToken);
@@ -126,7 +165,6 @@ export function AdminSettings() {
       contractAddress: "",
       chainId: CHAIN_IDS.BSC_MAINNET,
     });
-    toast.success("Token configuration saved");
   };
 
   const handleRemoveToken = (symbol: string, chainId: number) => {
@@ -369,11 +407,18 @@ export function AdminSettings() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setTokenDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setTokenDialogOpen(false)} disabled={isValidatingContract}>
                     Cancel
                   </Button>
-                  <Button onClick={handleAddToken}>
-                    Save Token
+                  <Button onClick={handleAddToken} disabled={isValidatingContract}>
+                    {isValidatingContract ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      "Save Token"
+                    )}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -395,6 +440,7 @@ export function AdminSettings() {
                 <TableRow>
                   <TableHead>Token</TableHead>
                   <TableHead>Network</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Contract</TableHead>
                   <TableHead className="w-24">Actions</TableHead>
                 </TableRow>
@@ -415,6 +461,12 @@ export function AdminSettings() {
                       <Badge variant="outline">
                         {NETWORKS[token.chainId]?.name || `Chain ${token.chainId}`}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <ContractStatusBadge
+                        contractAddress={token.contractAddress}
+                        chainId={token.chainId}
+                      />
                     </TableCell>
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center gap-2">
