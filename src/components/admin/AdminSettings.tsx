@@ -41,8 +41,10 @@ import {
 } from "@/config/adminConfig";
 import { CHAIN_IDS, NETWORKS } from "@/config/chains";
 import { ethereumAddressSchema } from "@/types";
-import { Settings, Plus, Trash2, Shield, Coins, Copy, Check } from "lucide-react";
+import { Settings, Plus, Trash2, Shield, Coins, Copy, Check, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { TokenIconUpload } from "./TokenIconUpload";
+import { HelpTooltip, helpContent } from "./HelpTooltip";
 
 export function AdminSettings() {
   const [adminAddresses, setAdminAddresses] = useState<string[]>([]);
@@ -143,6 +145,22 @@ export function AdminSettings() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
+  const getExplorerUrl = (address: string, chainId: number) => {
+    const network = NETWORKS[chainId];
+    if (network?.blockExplorerUrl) {
+      return `${network.blockExplorerUrl}/address/${address}`;
+    }
+    return null;
+  };
+
+  // Render token icon (supports both emoji and image URLs)
+  const renderTokenIcon = (icon: string) => {
+    if (icon.startsWith("data:") || icon.startsWith("http")) {
+      return <img src={icon} alt="Token" className="h-8 w-8 rounded object-cover" />;
+    }
+    return <span className="text-xl">{icon}</span>;
+  };
+
   return (
     <div className="space-y-6">
       {/* Admin Addresses Card */}
@@ -151,6 +169,7 @@ export function AdminSettings() {
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
             Admin Wallet Addresses
+            <HelpTooltip content={helpContent.adminAddress} />
           </CardTitle>
           <CardDescription>
             Manage wallet addresses that have admin access to mint, burn, and configure tokens
@@ -255,7 +274,7 @@ export function AdminSettings() {
                   Add Token
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle>Add Token Configuration</DialogTitle>
                   <DialogDescription>
@@ -265,7 +284,10 @@ export function AdminSettings() {
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="symbol">Symbol *</Label>
+                      <div className="flex items-center gap-1">
+                        <Label htmlFor="symbol">Symbol *</Label>
+                        <HelpTooltip content={helpContent.tokenSymbol} />
+                      </div>
                       <Input
                         id="symbol"
                         placeholder="USDT"
@@ -274,17 +296,26 @@ export function AdminSettings() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="icon">Icon</Label>
-                      <Input
-                        id="icon"
-                        placeholder="💵"
-                        value={newToken.icon || ""}
-                        onChange={(e) => setNewToken({ ...newToken, icon: e.target.value.slice(0, 4) })}
-                        className="text-center text-lg"
-                        maxLength={4}
-                      />
+                      <div className="flex items-center gap-1">
+                        <Label htmlFor="decimals">Decimals</Label>
+                        <HelpTooltip content={helpContent.tokenDecimals} />
+                      </div>
+                      <Select
+                        value={String(newToken.decimals)}
+                        onValueChange={(v) => setNewToken({ ...newToken, decimals: parseInt(v) })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="6">6 (USDT/USDC)</SelectItem>
+                          <SelectItem value="8">8 (BTC)</SelectItem>
+                          <SelectItem value="18">18 (ETH)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="name">Name *</Label>
                     <Input
@@ -294,24 +325,18 @@ export function AdminSettings() {
                       onChange={(e) => setNewToken({ ...newToken, name: e.target.value })}
                     />
                   </div>
+
+                  {/* Token Icon Upload */}
+                  <TokenIconUpload
+                    value={newToken.icon || "🪙"}
+                    onChange={(icon) => setNewToken({ ...newToken, icon })}
+                  />
+
                   <div className="space-y-2">
-                    <Label htmlFor="decimals">Decimals</Label>
-                    <Select
-                      value={String(newToken.decimals)}
-                      onValueChange={(v) => setNewToken({ ...newToken, decimals: parseInt(v) })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="6">6 (USDT/USDC)</SelectItem>
-                        <SelectItem value="8">8 (BTC)</SelectItem>
-                        <SelectItem value="18">18 (ETH)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="chainId">Network</Label>
+                    <div className="flex items-center gap-1">
+                      <Label htmlFor="chainId">Network</Label>
+                      <HelpTooltip content={helpContent.network} />
+                    </div>
                     <Select
                       value={String(newToken.chainId)}
                       onValueChange={(v) => setNewToken({ ...newToken, chainId: parseInt(v) })}
@@ -328,8 +353,12 @@ export function AdminSettings() {
                       </SelectContent>
                     </Select>
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="contractAddress">Contract Address *</Label>
+                    <div className="flex items-center gap-1">
+                      <Label htmlFor="contractAddress">Contract Address *</Label>
+                      <HelpTooltip content={helpContent.contractAddress} />
+                    </div>
                     <Input
                       id="contractAddress"
                       placeholder="0x..."
@@ -371,11 +400,11 @@ export function AdminSettings() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {customTokens.map((token) => (
-                  <TableRow key={`${token.symbol}-${token.chainId}`}>
+                {customTokens.map((token, index) => (
+                  <TableRow key={`${token.symbol}-${token.chainId}-${index}`}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{token.icon}</span>
+                        {renderTokenIcon(token.icon)}
                         <div>
                           <p className="font-medium">{token.symbol}</p>
                           <p className="text-xs text-muted-foreground">{token.name}</p>
@@ -402,6 +431,16 @@ export function AdminSettings() {
                             <Copy className="h-3 w-3" />
                           )}
                         </Button>
+                        {getExplorerUrl(token.contractAddress, token.chainId) && (
+                          <a
+                            href={getExplorerUrl(token.contractAddress, token.chainId)!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
