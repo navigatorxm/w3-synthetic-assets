@@ -15,18 +15,12 @@ const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/transfer", label: "Transfer", icon: Send },
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
-];
-
-const adminNavItems = [
   { path: "/admin", label: "Admin", icon: Shield },
 ];
 
 export function MainLayout({ children }: MainLayoutProps) {
   const location = useLocation();
-  const isAdmin = useWalletStore((state) => state.isAdmin);
   const isConnected = useWalletStore((state) => state.isConnected);
-
-  const allNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,7 +35,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            {allNavItems.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
@@ -69,7 +63,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Mobile Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-background">
         <div className="flex justify-around py-2">
-          {allNavItems.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
