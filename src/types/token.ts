@@ -10,11 +10,12 @@ export const TokenSymbol = {
   USDT: "USDT",
   BTC: "BTC",
   ETH: "ETH",
+  BNB: "BNB",
 } as const;
 
 export type TokenSymbol = (typeof TokenSymbol)[keyof typeof TokenSymbol];
 
-export const tokenSymbolSchema = z.enum(["USDT", "BTC", "ETH"]);
+export const tokenSymbolSchema = z.enum(["USDT", "BTC", "ETH", "BNB"]);
 
 // Token metadata
 export interface TokenMetadata {
