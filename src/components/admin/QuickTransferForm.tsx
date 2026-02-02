@@ -85,6 +85,14 @@ export function QuickTransferForm() {
 
       setIsLoadingBalance(true);
       try {
+        // Verify contract exists before attempting to read
+        const bytecode = await provider.getCode(selectedTokenAddress);
+        if (bytecode === "0x" || bytecode === "0x0" || !bytecode || bytecode.length <= 2) {
+          setBalance(null);
+          setIsLoadingBalance(false);
+          return;
+        }
+
         const contract = new Contract(selectedTokenAddress, FLASH_TOKEN_ABI, provider);
         const bal = await contract.balanceOf(address);
         const decimals = selectedToken?.decimals || 18;
@@ -111,6 +119,14 @@ export function QuickTransferForm() {
     
     setIsLoadingBalance(true);
     try {
+      // Verify contract exists before attempting to read
+      const bytecode = await provider.getCode(selectedTokenAddress);
+      if (bytecode === "0x" || bytecode === "0x0" || !bytecode || bytecode.length <= 2) {
+        setBalance(null);
+        setIsLoadingBalance(false);
+        return;
+      }
+
       const contract = new Contract(selectedTokenAddress, FLASH_TOKEN_ABI, provider);
       const bal = await contract.balanceOf(address);
       const decimals = selectedToken?.decimals || 18;
@@ -131,6 +147,24 @@ export function QuickTransferForm() {
     setIsSubmitting(true);
 
     try {
+      // CRITICAL: Verify contract bytecode exists at address before sending transaction
+      // This prevents sending calldata to an EOA (which causes "External transactions to internal accounts cannot include data" error)
+      const signerProvider = signer.provider;
+      if (!signerProvider) {
+        toast.error("Provider not available");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const bytecode = await signerProvider.getCode(data.tokenAddress);
+      if (bytecode === "0x" || bytecode === "0x0" || !bytecode || bytecode.length <= 2) {
+        toast.error(
+          `No contract deployed at ${data.tokenAddress.slice(0, 10)}... on this network. Please verify the contract address in Settings.`
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       const contract = new Contract(data.tokenAddress, FLASH_TOKEN_ABI, signer);
       const amountWei = parseUnits(data.amount, selectedToken.decimals);
 
