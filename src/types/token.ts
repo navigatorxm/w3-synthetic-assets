@@ -5,17 +5,17 @@ export const ethereumAddressSchema = z
   .string()
   .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address");
 
-// Token symbols supported
+// Token symbols supported (neutral naming)
 export const TokenSymbol = {
-  USDT: "USDT",
-  BTC: "BTC",
-  ETH: "ETH",
-  BNB: "BNB",
+  FLA: "FLA",
+  FLB: "FLB",
+  FLC: "FLC",
+  FLD: "FLD",
 } as const;
 
 export type TokenSymbol = (typeof TokenSymbol)[keyof typeof TokenSymbol];
 
-export const tokenSymbolSchema = z.enum(["USDT", "BTC", "ETH", "BNB"]);
+export const tokenSymbolSchema = z.enum(["FLA", "FLB", "FLC", "FLD"]);
 
 // Token metadata
 export interface TokenMetadata {
@@ -26,13 +26,11 @@ export interface TokenMetadata {
   contractAddress: string;
 }
 
-// Token balance with expiry
+// Token balance
 export interface TokenBalance {
   symbol: TokenSymbol;
   balance: string;
   balanceFormatted: string;
-  expiryTimestamp: number;
-  isExpired: boolean;
   contractAddress: string;
 }
 
@@ -46,10 +44,6 @@ export const mintRequestSchema = z.object({
       message: "Amount must be a positive number",
     }),
   tokenSymbol: tokenSymbolSchema,
-  expiryDays: z
-    .number()
-    .min(1, "Minimum 1 day")
-    .max(365, "Maximum 365 days"),
 });
 
 export type MintRequest = z.infer<typeof mintRequestSchema>;
@@ -59,7 +53,6 @@ export const batchMintRequestSchema = z.object({
   recipients: z.array(ethereumAddressSchema).min(1, "At least one recipient required"),
   amounts: z.array(z.string()).min(1),
   tokenSymbol: tokenSymbolSchema,
-  expiryDays: z.number().min(1).max(365),
 });
 
 export type BatchMintRequest = z.infer<typeof batchMintRequestSchema>;
@@ -82,8 +75,6 @@ export type TransferRequest = z.infer<typeof transferRequestSchema>;
 export interface TokenHolder {
   address: string;
   balance: string;
-  expiryTimestamp: number;
-  isExpired: boolean;
   lastActivity: Date;
 }
 
@@ -92,8 +83,6 @@ export interface TokenStats {
   symbol: TokenSymbol;
   totalSupply: string;
   totalHolders: number;
-  activeHolders: number;
-  expiredHolders: number;
   volume24h: string;
   transactions24h: number;
 }

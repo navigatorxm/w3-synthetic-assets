@@ -6,7 +6,6 @@ import { useWeb3 } from "@/providers/Web3Provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { TOKEN_METADATA } from "@/config/contracts";
 import { QUERY_KEYS, TX_CONFIRMATION_BLOCKS } from "@/config/constants";
-import { calculateExpiryTimestamp } from "@/lib/validation";
 import { toast } from "sonner";
 import type { TokenSymbol, TransactionType } from "@/types";
 import type { Contract } from "ethers";
@@ -15,7 +14,6 @@ interface TransactionOptions {
   symbol: TokenSymbol;
   amount: string;
   to?: string;
-  expiryDays?: number;
 }
 
 interface UseTransactionsReturn {
@@ -64,9 +62,9 @@ export function useTransactions(): UseTransactionsReturn {
     setTimeout(() => removePendingTransaction(txId), 5000);
   };
 
-  // Mint tokens (admin only)
+  // Mint tokens (admin only) - no expiry, standard BEP-20
   const mint = useCallback(
-    async ({ symbol, amount, to, expiryDays = 30 }: TransactionOptions) => {
+    async ({ symbol, amount, to }: TransactionOptions) => {
       // Create contract using utility function (not a hook)
       const contract = createTokenContract(chainId, symbol, signer);
       
@@ -89,11 +87,11 @@ export function useTransactions(): UseTransactionsReturn {
       try {
         const decimals = TOKEN_METADATA[symbol].decimals;
         const amountWei = parseUnits(amount, decimals);
-        const expiry = calculateExpiryTimestamp(expiryDays);
 
         updatePendingTransaction(txId, { status: "awaiting_signature" });
 
-        const tx = await contract.mint(to, amountWei, expiry);
+        // Mint without expiry parameter
+        const tx = await contract.mint(to, amountWei);
         const txHash = tx.hash;
 
         updatePendingTransaction(txId, { hash: txHash, status: "submitted" });

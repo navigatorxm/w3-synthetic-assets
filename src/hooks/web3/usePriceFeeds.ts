@@ -26,8 +26,8 @@ export function useTokenPrice(symbol: TokenSymbol) {
         // Return mock price for tokens without feeds
         return {
           symbol,
-          price: symbol === "USDT" ? 1.0 : 0,
-          priceFormatted: symbol === "USDT" ? "$1.00" : "N/A",
+          price: 0,
+          priceFormatted: "N/A",
           decimals: 8,
           updatedAt: new Date(),
           isStale: false,
@@ -82,17 +82,15 @@ export function useAllPrices() {
         const feedAddress = getPriceFeedAddress(chainId, symbol);
         
         if (!feedAddress || feedAddress === "0x0000000000000000000000000000000000000000") {
-          // Mock price for USDT (stablecoin)
-          if (symbol === "USDT") {
-            prices.push({
-              symbol,
-              price: 1.0,
-              priceFormatted: "$1.00",
-              decimals: 8,
-              updatedAt: new Date(),
-              isStale: false,
-            });
-          }
+          // No price feed available - tokens are synthetic with no external price
+          prices.push({
+            symbol,
+            price: 0,
+            priceFormatted: "N/A",
+            decimals: 8,
+            updatedAt: new Date(),
+            isStale: false,
+          });
           continue;
         }
 
@@ -153,7 +151,7 @@ export function usePortfolioValue() {
 
   for (const balance of balances) {
     const price = prices.find((p) => p.symbol === balance.symbol);
-    if (price && !balance.isExpired) {
+    if (price) {
       totalValue += parseFloat(balance.balanceFormatted) * price.price;
     }
   }

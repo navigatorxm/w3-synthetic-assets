@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import {
   Form,
   FormControl,
@@ -24,9 +23,8 @@ import {
 import { useTransactions } from "@/hooks/web3";
 import { mintRequestSchema, type MintRequest } from "@/types";
 import { TOKEN_METADATA, ALL_TOKEN_SYMBOLS } from "@/config/contracts";
-import { DEFAULT_EXPIRY_DAYS, MIN_EXPIRY_DAYS, MAX_EXPIRY_DAYS } from "@/config/constants";
 import { useWalletStore } from "@/stores/walletStore";
-import { Coins, Loader2, Calendar } from "lucide-react";
+import { Coins, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function MintForm() {
@@ -40,12 +38,9 @@ export function MintForm() {
     defaultValues: {
       recipient: "",
       amount: "",
-      tokenSymbol: "USDT",
-      expiryDays: DEFAULT_EXPIRY_DAYS,
+      tokenSymbol: "FLA",
     },
   });
-
-  const expiryDays = form.watch("expiryDays");
 
   const onSubmit = async (data: MintRequest) => {
     if (!isConnected || !isAdmin) {
@@ -59,7 +54,6 @@ export function MintForm() {
         symbol: data.tokenSymbol,
         amount: data.amount,
         to: data.recipient,
-        expiryDays: data.expiryDays,
       });
 
       if (txHash) {
@@ -71,9 +65,6 @@ export function MintForm() {
     }
   };
 
-  const expiryDate = new Date();
-  expiryDate.setDate(expiryDate.getDate() + expiryDays);
-
   return (
     <Card>
       <CardHeader>
@@ -82,7 +73,7 @@ export function MintForm() {
           Mint Tokens
         </CardTitle>
         <CardDescription>
-          Create new FlashAsset tokens with expiry dates
+          Create new FlashAsset tokens
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -160,42 +151,6 @@ export function MintForm() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Expiry Days Slider */}
-            <FormField
-              control={form.control}
-              name="expiryDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Token Expiry
-                  </FormLabel>
-                  <FormControl>
-                    <div className="space-y-4">
-                      <Slider
-                        min={MIN_EXPIRY_DAYS}
-                        max={MAX_EXPIRY_DAYS}
-                        step={1}
-                        value={[field.value]}
-                        onValueChange={(vals) => field.onChange(vals[0])}
-                        className="py-4"
-                      />
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">{expiryDays} days</span>
-                        <span className="text-muted-foreground">
-                          Expires: {expiryDate.toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    Tokens will become non-transferable after this period
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

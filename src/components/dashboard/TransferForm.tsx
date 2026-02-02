@@ -38,7 +38,7 @@ export function TransferForm() {
     defaultValues: {
       to: "",
       amount: "",
-      tokenSymbol: "USDT",
+      tokenSymbol: "FLA",
     },
   });
 
@@ -55,12 +55,6 @@ export function TransferForm() {
     const balance = balances?.find((b) => b.symbol === data.tokenSymbol);
     if (!balance || parseFloat(balance.balanceFormatted) < parseFloat(data.amount)) {
       toast.error("Insufficient balance");
-      return;
-    }
-
-    // Check if tokens are expired
-    if (balance.isExpired) {
-      toast.error("Cannot transfer expired tokens");
       return;
     }
 
@@ -145,7 +139,7 @@ export function TransferForm() {
                     />
                   </FormControl>
                   <FormDescription>
-                    Enter the Ethereum address to send tokens to
+                    Enter the BNB Chain address to send tokens to
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -188,18 +182,11 @@ export function TransferForm() {
               )}
             />
 
-            {/* Warning if tokens expired */}
-            {selectedBalance?.isExpired && parseFloat(selectedBalance.balanceFormatted) > 0 && (
-              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                ⚠️ These tokens have expired and cannot be transferred.
-              </div>
-            )}
-
             {/* Submit Button */}
             <Button
               type="submit"
               className="w-full"
-              disabled={isSubmitting || isLoading || !isConnected || selectedBalance?.isExpired}
+              disabled={isSubmitting || isLoading || !isConnected}
             >
               {isSubmitting || isLoading ? (
                 <>
