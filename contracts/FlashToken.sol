@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "./interfaces/IFlashToken.sol";
 
 /**
  * @title FlashToken
@@ -19,7 +20,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * - Burnable by admin
  * - Pausable for emergencies
  */
-contract FlashToken is ERC20, AccessControl, Pausable, ReentrancyGuard {
+contract FlashToken is ERC20, IFlashToken, AccessControl, Pausable, ReentrancyGuard {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -174,6 +175,8 @@ contract FlashToken is ERC20, AccessControl, Pausable, ReentrancyGuard {
         uint256 newExpiry
     ) external onlyRole(ADMIN_ROLE) whenNotPaused {
         if (account == address(0)) revert ZeroAddress();
+        // Allow zero (clear expiry) or future timestamp only
+        if (newExpiry != 0 && newExpiry <= block.timestamp) revert ExpiryInPast();
         
         _expiries[account] = newExpiry;
         emit ExpiryUpdated(account, newExpiry);
