@@ -103,18 +103,18 @@ export function MintPanel() {
         {/* Network Status */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
           <div className="flex items-center gap-2">
-            <div className={`h-2 w-2 rounded-full ${chainId === 137 ? "bg-green-500" : "bg-yellow-500"}`} />
+            <div className={`h-2 w-2 rounded-full ${chainId === 56 ? "bg-green-500" : "bg-yellow-500"}`} />
             <span className="text-sm font-medium">
               {currentNetwork?.name || "Unknown Network"}
             </span>
           </div>
-          {chainId !== 137 && (
+          {chainId !== 56 && (
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => switchNetwork(137)}
+              onClick={() => switchNetwork(56)}
             >
-              Switch to Polygon
+              Switch to BSC
             </Button>
           )}
         </div>

@@ -58,7 +58,7 @@ export function AdminSettings() {
     decimals: 18,
     icon: "🪙",
     contractAddress: "",
-    chainId: CHAIN_IDS.SEPOLIA,
+    chainId: CHAIN_IDS.BSC_MAINNET,
   });
 
   // Load data on mount
@@ -122,7 +122,7 @@ export function AdminSettings() {
       decimals: 18,
       icon: "🪙",
       contractAddress: "",
-      chainId: CHAIN_IDS.SEPOLIA,
+      chainId: CHAIN_IDS.BSC_MAINNET,
     });
     toast.success("Token configuration saved");
   };

@@ -6,6 +6,8 @@ export const CHAIN_IDS = {
   SEPOLIA: 11155111,
   POLYGON_MAINNET: 137,
   POLYGON_AMOY: 80002,
+  BSC_MAINNET: 56,
+  BSC_TESTNET: 97,
   LOCALHOST: 31337,
 } as const;
 
@@ -59,6 +61,30 @@ export const NETWORKS: Record<number, NetworkConfig> = {
     },
     isTestnet: true,
   },
+  [CHAIN_IDS.BSC_MAINNET]: {
+    chainId: CHAIN_IDS.BSC_MAINNET,
+    name: "BNB Smart Chain",
+    rpcUrl: "https://bsc-dataseed.binance.org",
+    blockExplorerUrl: "https://bscscan.com",
+    nativeCurrency: {
+      name: "BNB",
+      symbol: "BNB",
+      decimals: 18,
+    },
+    isTestnet: false,
+  },
+  [CHAIN_IDS.BSC_TESTNET]: {
+    chainId: CHAIN_IDS.BSC_TESTNET,
+    name: "BSC Testnet",
+    rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+    blockExplorerUrl: "https://testnet.bscscan.com",
+    nativeCurrency: {
+      name: "tBNB",
+      symbol: "tBNB",
+      decimals: 18,
+    },
+    isTestnet: true,
+  },
   [CHAIN_IDS.LOCALHOST]: {
     chainId: CHAIN_IDS.LOCALHOST,
     name: "Localhost",
@@ -73,11 +99,13 @@ export const NETWORKS: Record<number, NetworkConfig> = {
   },
 };
 
-// Default network for production - Polygon for low gas fees
-export const DEFAULT_CHAIN_ID = CHAIN_IDS.POLYGON_MAINNET;
+// Default network for production - BSC for low gas fees
+export const DEFAULT_CHAIN_ID = CHAIN_IDS.BSC_MAINNET;
 
 // Supported chains for the app
 export const SUPPORTED_CHAIN_IDS = [
+  CHAIN_IDS.BSC_MAINNET,
+  CHAIN_IDS.BSC_TESTNET,
   CHAIN_IDS.POLYGON_MAINNET,
   CHAIN_IDS.POLYGON_AMOY,
   CHAIN_IDS.ETHEREUM_MAINNET,
