@@ -278,8 +278,10 @@ export function AdminSettings() {
                       <Input
                         id="icon"
                         placeholder="💵"
-                        value={newToken.icon}
-                        onChange={(e) => setNewToken({ ...newToken, icon: e.target.value })}
+                        value={newToken.icon || ""}
+                        onChange={(e) => setNewToken({ ...newToken, icon: e.target.value.slice(0, 4) })}
+                        className="text-center text-lg"
+                        maxLength={4}
                       />
                     </div>
                   </div>
