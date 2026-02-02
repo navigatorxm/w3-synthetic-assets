@@ -32,6 +32,7 @@ import { ethereumAddressSchema } from "@/types";
 import { Contract } from "ethers";
 import { Coins, Loader2, Calendar, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { HelpTooltip, helpContent } from "./HelpTooltip";
 
 const mintFormSchema = z.object({
   recipient: ethereumAddressSchema,
@@ -196,10 +197,14 @@ export function QuickMintForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {tokens.map((token) => (
-                        <SelectItem key={token.contractAddress} value={token.contractAddress}>
+                      {tokens.map((token, index) => (
+                        <SelectItem key={`${token.symbol}-${token.chainId}-${index}`} value={token.contractAddress}>
                           <div className="flex items-center gap-2">
-                            <span>{token.icon}</span>
+                            {token.icon.startsWith("data:") || token.icon.startsWith("http") ? (
+                              <img src={token.icon} alt={token.symbol} className="h-5 w-5 rounded object-cover" />
+                            ) : (
+                              <span>{token.icon}</span>
+                            )}
                             <span>{token.name}</span>
                             <span className="text-muted-foreground">
                               ({token.decimals} decimals)
@@ -220,7 +225,10 @@ export function QuickMintForm() {
               name="recipient"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Recipient Address</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    Recipient Address
+                    <HelpTooltip content={helpContent.mintRecipient} />
+                  </FormLabel>
                   <div className="flex gap-2">
                     <FormControl>
                       <Input
@@ -251,7 +259,10 @@ export function QuickMintForm() {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    Amount
+                    <HelpTooltip content={helpContent.mintAmount} />
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -279,6 +290,7 @@ export function QuickMintForm() {
                   <FormLabel className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     Token Expiry
+                    <HelpTooltip content={helpContent.expiryDays} />
                   </FormLabel>
                   <FormControl>
                     <div className="space-y-4">
