@@ -2,7 +2,7 @@
 
 // App info
 export const APP_NAME = "FlashAsset";
-export const APP_DESCRIPTION = "Expiring Mock Token Platform for Trading Communities";
+export const APP_DESCRIPTION = "Synthetic BEP-20 Token Platform";
 export const APP_VERSION = "1.0.0";
 
 // Pagination
@@ -12,11 +12,6 @@ export const MAX_PAGE_SIZE = 100;
 // Transaction settings
 export const TX_CONFIRMATION_BLOCKS = 2;
 export const TX_TIMEOUT_MS = 120_000; // 2 minutes
-
-// Token defaults
-export const DEFAULT_EXPIRY_DAYS = 30;
-export const MIN_EXPIRY_DAYS = 1;
-export const MAX_EXPIRY_DAYS = 365;
 
 // Batch limits
 export const MAX_BATCH_MINT_SIZE = 100;

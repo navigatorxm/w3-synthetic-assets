@@ -6,7 +6,6 @@ import { parseUnits } from "ethers";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import {
   Form,
   FormControl,
@@ -27,10 +26,9 @@ import { getCustomTokens, type CustomToken } from "@/config/adminConfig";
 import { useWalletStore } from "@/stores/walletStore";
 import { useWeb3 } from "@/providers/Web3Provider";
 import { FLASH_TOKEN_ABI } from "@/config/contracts";
-import { DEFAULT_EXPIRY_DAYS, MIN_EXPIRY_DAYS, MAX_EXPIRY_DAYS } from "@/config/constants";
 import { ethereumAddressSchema } from "@/types";
 import { Contract } from "ethers";
-import { Coins, Loader2, Calendar, Wallet } from "lucide-react";
+import { Coins, Loader2, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { HelpTooltip, helpContent } from "./HelpTooltip";
 
@@ -43,7 +41,6 @@ const mintFormSchema = z.object({
       message: "Amount must be a positive number",
     }),
   tokenAddress: z.string().min(1, "Select a token"),
-  expiryDays: z.number().min(MIN_EXPIRY_DAYS).max(MAX_EXPIRY_DAYS),
 });
 
 type MintFormData = z.infer<typeof mintFormSchema>;
@@ -60,7 +57,6 @@ export function QuickMintForm() {
       recipient: "",
       amount: "",
       tokenAddress: "",
-      expiryDays: DEFAULT_EXPIRY_DAYS,
     },
   });
 
@@ -77,12 +73,8 @@ export function QuickMintForm() {
     }
   }, [chainId, form]);
 
-  const expiryDays = form.watch("expiryDays");
   const selectedTokenAddress = form.watch("tokenAddress");
   const selectedToken = tokens.find(t => t.contractAddress === selectedTokenAddress);
-
-  const expiryDate = new Date();
-  expiryDate.setDate(expiryDate.getDate() + expiryDays);
 
   const handleMintToSelf = () => {
     if (address) {
@@ -100,7 +92,6 @@ export function QuickMintForm() {
 
     try {
       // CRITICAL: Verify contract bytecode exists at address before sending transaction
-      // This prevents sending calldata to an EOA (which causes "External transactions to internal accounts cannot include data" error)
       const provider = signer.provider;
       if (!provider) {
         toast.error("Provider not available");
@@ -121,13 +112,11 @@ export function QuickMintForm() {
       
       // Calculate amount with decimals
       const amountWei = parseUnits(data.amount, selectedToken.decimals);
-      
-      // Calculate expiry timestamp
-      const expiryTimestamp = Math.floor(Date.now() / 1000) + (data.expiryDays * 24 * 60 * 60);
 
       toast.info("Please confirm the transaction in your wallet...");
 
-      const tx = await contract.mint(data.recipient, amountWei, expiryTimestamp);
+      // Mint without expiry parameter (BEP-20 standard)
+      const tx = await contract.mint(data.recipient, amountWei);
       
       toast.info(`Transaction submitted: ${tx.hash.slice(0, 10)}...`);
       
@@ -141,7 +130,6 @@ export function QuickMintForm() {
           recipient: "",
           amount: "",
           tokenAddress: data.tokenAddress,
-          expiryDays: DEFAULT_EXPIRY_DAYS,
         });
       } else {
         toast.error("Transaction failed");
@@ -153,7 +141,7 @@ export function QuickMintForm() {
       if (message.includes("user rejected")) {
         toast.error("Transaction cancelled by user");
       } else if (message.includes("insufficient funds")) {
-        toast.error("Insufficient ETH for gas");
+        toast.error("Insufficient BNB for gas");
       } else {
         toast.error(message);
       }
@@ -195,7 +183,7 @@ export function QuickMintForm() {
           Mint Tokens
         </CardTitle>
         <CardDescription>
-          Create new tokens with an expiry date. Tokens become non-transferable after expiry.
+          Create new BEP-20 tokens and send to any address.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -294,43 +282,6 @@ export function QuickMintForm() {
                       Amount in {selectedToken.symbol}
                     </FormDescription>
                   )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Expiry Days Slider */}
-            <FormField
-              control={form.control}
-              name="expiryDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Token Expiry
-                    <HelpTooltip content={helpContent.expiryDays} />
-                  </FormLabel>
-                  <FormControl>
-                    <div className="space-y-4">
-                      <Slider
-                        min={MIN_EXPIRY_DAYS}
-                        max={MAX_EXPIRY_DAYS}
-                        step={1}
-                        value={[field.value]}
-                        onValueChange={(vals) => field.onChange(vals[0])}
-                        className="py-4"
-                      />
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">{expiryDays} days</span>
-                        <span className="text-muted-foreground">
-                          Expires: {expiryDate.toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    Tokens become non-transferable after this period
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

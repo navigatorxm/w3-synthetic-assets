@@ -16,20 +16,12 @@ async function fetchTokenBalance(
   if (!contract || !address) return null;
 
   try {
-    const [balance, expiry] = await Promise.all([
-      contract.balanceOf(address) as Promise<bigint>,
-      contract.expiryOf(address) as Promise<bigint>,
-    ]);
-
-    const expiryTimestamp = Number(expiry);
-    const now = Math.floor(Date.now() / 1000);
+    const balance = await contract.balanceOf(address) as bigint;
 
     return {
       symbol,
       balance: balance.toString(),
       balanceFormatted: formatTokenAmount(balance, symbol),
-      expiryTimestamp,
-      isExpired: expiryTimestamp > 0 && expiryTimestamp < now,
       contractAddress: getTokenAddress(chainId, symbol),
     };
   } catch (error) {
@@ -70,8 +62,6 @@ export function useAllBalances() {
         symbol,
         balance: "0",
         balanceFormatted: "0",
-        expiryTimestamp: 0,
-        isExpired: false,
         contractAddress: getTokenAddress(chainId, symbol),
       }));
 

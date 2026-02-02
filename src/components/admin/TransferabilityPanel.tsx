@@ -14,7 +14,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -24,13 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ALL_TOKEN_SYMBOLS, TOKEN_METADATA } from "@/config/contracts";
-import { ethereumAddressSchema, type TokenSymbol } from "@/types";
+import { ethereumAddressSchema, tokenSymbolSchema, type TokenSymbol } from "@/types";
 import { Lock, Unlock, Shield, Snowflake } from "lucide-react";
 import { toast } from "sonner";
 
 const freezeFormSchema = z.object({
   address: ethereumAddressSchema,
-  tokenSymbol: z.enum(["USDT", "BTC", "ETH"]),
+  tokenSymbol: tokenSymbolSchema,
 });
 
 type FreezeFormValues = z.infer<typeof freezeFormSchema>;
@@ -50,7 +49,7 @@ export function TransferabilityPanel() {
     resolver: zodResolver(freezeFormSchema),
     defaultValues: {
       address: "",
-      tokenSymbol: "USDT",
+      tokenSymbol: "FLA",
     },
   });
 

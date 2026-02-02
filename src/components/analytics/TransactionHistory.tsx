@@ -12,7 +12,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { History, ExternalLink } from "lucide-react";
 import { shortenAddress } from "@/lib/validation";
-import { TOKEN_METADATA } from "@/config/contracts";
+import { TOKEN_METADATA, ALL_TOKEN_SYMBOLS } from "@/config/contracts";
 import { useWalletStore } from "@/stores/walletStore";
 import { getExplorerTxUrl } from "@/config/chains";
 import type { TransactionType, TokenSymbol } from "@/types";
@@ -31,7 +31,7 @@ interface MockTransaction {
 // Mock data for demo
 const generateMockTransactions = (): MockTransaction[] => {
   const types: TransactionType[] = ["mint", "transfer", "burn"];
-  const symbols: TokenSymbol[] = ["USDT", "BTC", "ETH"];
+  const symbols = ALL_TOKEN_SYMBOLS;
   const transactions: MockTransaction[] = [];
   
   for (let i = 0; i < 20; i++) {

@@ -55,15 +55,15 @@ export function createTokenContract(
 
 // Hook to get all token contracts
 export function useAllTokenContracts(): Record<TokenSymbol, Contract | null> {
-  const usdt = useTokenContract("USDT");
-  const btc = useTokenContract("BTC");
-  const eth = useTokenContract("ETH");
-  const bnb = useTokenContract("BNB");
+  const fla = useTokenContract("FLA");
+  const flb = useTokenContract("FLB");
+  const flc = useTokenContract("FLC");
+  const fld = useTokenContract("FLD");
 
   return {
-    USDT: usdt.contract,
-    BTC: btc.contract,
-    ETH: eth.contract,
-    BNB: bnb.contract,
+    FLA: fla.contract,
+    FLB: flb.contract,
+    FLC: flc.contract,
+    FLD: fld.contract,
   };
 }

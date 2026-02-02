@@ -5,40 +5,40 @@ import { CHAIN_IDS } from "./chains";
 // NOTE: Replace with actual deployed addresses after deployment
 export const CONTRACT_ADDRESSES: Record<number, Record<TokenSymbol, string>> = {
   [CHAIN_IDS.POLYGON_MAINNET]: {
-    USDT: "0x0000000000000000000000000000000000000000",
-    BTC: "0x0000000000000000000000000000000000000000",
-    ETH: "0x0000000000000000000000000000000000000000",
-    BNB: "0x0000000000000000000000000000000000000000",
+    FLA: "0x0000000000000000000000000000000000000000",
+    FLB: "0x0000000000000000000000000000000000000000",
+    FLC: "0x0000000000000000000000000000000000000000",
+    FLD: "0x0000000000000000000000000000000000000000",
   },
   [CHAIN_IDS.POLYGON_AMOY]: {
-    USDT: "0x0000000000000000000000000000000000000000",
-    BTC: "0x0000000000000000000000000000000000000000",
-    ETH: "0x0000000000000000000000000000000000000000",
-    BNB: "0x0000000000000000000000000000000000000000",
+    FLA: "0x0000000000000000000000000000000000000000",
+    FLB: "0x0000000000000000000000000000000000000000",
+    FLC: "0x0000000000000000000000000000000000000000",
+    FLD: "0x0000000000000000000000000000000000000000",
   },
   [CHAIN_IDS.ETHEREUM_MAINNET]: {
-    USDT: "0x0000000000000000000000000000000000000000",
-    BTC: "0x0000000000000000000000000000000000000000",
-    ETH: "0x0000000000000000000000000000000000000000",
-    BNB: "0x0000000000000000000000000000000000000000",
+    FLA: "0x0000000000000000000000000000000000000000",
+    FLB: "0x0000000000000000000000000000000000000000",
+    FLC: "0x0000000000000000000000000000000000000000",
+    FLD: "0x0000000000000000000000000000000000000000",
   },
   [CHAIN_IDS.SEPOLIA]: {
-    USDT: "0x0000000000000000000000000000000000000000",
-    BTC: "0x0000000000000000000000000000000000000000",
-    ETH: "0x0000000000000000000000000000000000000000",
-    BNB: "0x0000000000000000000000000000000000000000",
+    FLA: "0x0000000000000000000000000000000000000000",
+    FLB: "0x0000000000000000000000000000000000000000",
+    FLC: "0x0000000000000000000000000000000000000000",
+    FLD: "0x0000000000000000000000000000000000000000",
   },
   [CHAIN_IDS.BSC_MAINNET]: {
-    USDT: "0x0000000000000000000000000000000000000000",
-    BTC: "0x0000000000000000000000000000000000000000",
-    ETH: "0x0000000000000000000000000000000000000000",
-    BNB: "0x0000000000000000000000000000000000000000",
+    FLA: "0x0000000000000000000000000000000000000000",
+    FLB: "0x0000000000000000000000000000000000000000",
+    FLC: "0x0000000000000000000000000000000000000000",
+    FLD: "0x0000000000000000000000000000000000000000",
   },
   [CHAIN_IDS.BSC_TESTNET]: {
-    USDT: "0x0000000000000000000000000000000000000000",
-    BTC: "0x0000000000000000000000000000000000000000",
-    ETH: "0x0000000000000000000000000000000000000000",
-    BNB: "0x0000000000000000000000000000000000000000",
+    FLA: "0x0000000000000000000000000000000000000000",
+    FLB: "0x0000000000000000000000000000000000000000",
+    FLC: "0x0000000000000000000000000000000000000000",
+    FLD: "0x0000000000000000000000000000000000000000",
   },
 };
 
@@ -52,31 +52,31 @@ export const FACTORY_ADDRESSES: Record<number, string> = {
   [CHAIN_IDS.BSC_TESTNET]: "0x0000000000000000000000000000000000000000",
 };
 
-// Token metadata
+// Token metadata (neutral naming - no reference to real assets)
 export const TOKEN_METADATA: Record<TokenSymbol, Omit<TokenMetadata, "contractAddress">> = {
-  USDT: {
-    symbol: "USDT",
-    name: "Flash USDT",
-    decimals: 6,
-    icon: "💵",
-  },
-  BTC: {
-    symbol: "BTC",
-    name: "Flash BTC",
-    decimals: 8,
-    icon: "₿",
-  },
-  ETH: {
-    symbol: "ETH",
-    name: "Flash ETH",
+  FLA: {
+    symbol: "FLA",
+    name: "Flash Asset Alpha",
     decimals: 18,
-    icon: "Ξ",
+    icon: "🔷",
   },
-  BNB: {
-    symbol: "BNB",
-    name: "Flash BNB",
+  FLB: {
+    symbol: "FLB",
+    name: "Flash Asset Beta",
     decimals: 18,
     icon: "🔶",
+  },
+  FLC: {
+    symbol: "FLC",
+    name: "Flash Asset Gamma",
+    decimals: 18,
+    icon: "🔹",
+  },
+  FLD: {
+    symbol: "FLD",
+    name: "Flash Asset Delta",
+    decimals: 18,
+    icon: "🔸",
   },
 };
 
@@ -100,11 +100,11 @@ export function getTokenMetadata(chainId: number, symbol: TokenSymbol): TokenMet
 }
 
 // All token symbols
-export const ALL_TOKEN_SYMBOLS: TokenSymbol[] = ["USDT", "BTC", "ETH", "BNB"];
+export const ALL_TOKEN_SYMBOLS: TokenSymbol[] = ["FLA", "FLB", "FLC", "FLD"];
 
-// ABI for FlashToken contract
+// ABI for FlashToken contract (BEP-20 compatible, no expiry)
 export const FLASH_TOKEN_ABI = [
-  // ERC-20 Standard
+  // BEP-20 / ERC-20 Standard
   "function name() view returns (string)",
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
@@ -115,12 +115,10 @@ export const FLASH_TOKEN_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
   "function transferFrom(address from, address to, uint256 amount) returns (bool)",
   
-  // FlashAsset Extensions
-  "function expiryOf(address account) view returns (uint256)",
-  "function isExpired(address account) view returns (bool)",
-  "function mint(address to, uint256 amount, uint256 expiry)",
+  // FlashToken Extensions
+  "function mint(address to, uint256 amount)",
   "function burn(address account, uint256 amount)",
-  "function batchMint(address[] recipients, uint256[] amounts, uint256[] expiries)",
+  "function batchMint(address[] recipients, uint256[] amounts)",
   "function hasRole(bytes32 role, address account) view returns (bool)",
   "function ADMIN_ROLE() view returns (bytes32)",
   "function MINTER_ROLE() view returns (bytes32)",
@@ -128,9 +126,8 @@ export const FLASH_TOKEN_ABI = [
   // Events
   "event Transfer(address indexed from, address indexed to, uint256 value)",
   "event Approval(address indexed owner, address indexed spender, uint256 value)",
-  "event TokenMinted(address indexed to, uint256 amount, uint256 expiry)",
+  "event TokenMinted(address indexed to, uint256 amount)",
   "event TokenBurned(address indexed from, uint256 amount)",
-  "event ExpiryUpdated(address indexed account, uint256 newExpiry)",
 ] as const;
 
 // ABI for FlashFactory contract

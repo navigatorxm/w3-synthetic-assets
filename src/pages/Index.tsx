@@ -1,6 +1,5 @@
 import { MainLayout } from "@/components/layout/MainLayout";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
-import { ExpiryTimer } from "@/components/dashboard/ExpiryTimer";
 import { TransferForm } from "@/components/dashboard/TransferForm";
 import { PriceDisplay } from "@/components/dashboard/PriceDisplay";
 import { MintPanel } from "@/components/dashboard/MintPanel";
@@ -9,16 +8,16 @@ import { useWalletStore } from "@/stores/walletStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useWeb3 } from "@/providers/Web3Provider";
-import { Wallet, Coins, TrendingUp, Clock } from "lucide-react";
+import { Wallet, Coins, TrendingUp, Shield } from "lucide-react";
 
 const Index = () => {
   const { connect, isMetaMaskInstalled } = useWeb3();
   const isConnected = useWalletStore((state) => state.isConnected);
   const { data: balances } = useAllBalances();
 
-  // Get non-zero balances for expiry timers
+  // Get non-zero balances
   const activeBalances = balances?.filter(
-    (b) => parseFloat(b.balanceFormatted) > 0 && b.expiryTimestamp > 0
+    (b) => parseFloat(b.balanceFormatted) > 0
   );
 
   if (!isConnected) {
@@ -29,7 +28,7 @@ const Index = () => {
             <Coins className="h-20 w-20 text-primary mx-auto mb-4" />
             <h1 className="text-4xl font-bold mb-2">Welcome to FlashAsset</h1>
             <p className="text-xl text-muted-foreground max-w-md">
-              The premier platform for managing expiring mock tokens in trading communities
+              Administrative platform for managing synthetic BEP-20 tokens on BNB Chain
             </p>
           </div>
 
@@ -37,18 +36,18 @@ const Index = () => {
             <Card>
               <CardContent className="pt-6 text-center">
                 <TrendingUp className="h-10 w-10 text-primary mx-auto mb-3" />
-                <h3 className="font-semibold mb-1">Trade Safely</h3>
+                <h3 className="font-semibold mb-1">Transparent</h3>
                 <p className="text-sm text-muted-foreground">
-                  Practice trading with time-limited tokens
+                  All mints and transfers recorded on-chain
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6 text-center">
-                <Clock className="h-10 w-10 text-primary mx-auto mb-3" />
-                <h3 className="font-semibold mb-1">Auto-Expiry</h3>
+                <Shield className="h-10 w-10 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold mb-1">Role-Gated</h3>
                 <p className="text-sm text-muted-foreground">
-                  Tokens automatically expire after set period
+                  Admin-only minting with access control
                 </p>
               </CardContent>
             </Card>
@@ -57,7 +56,7 @@ const Index = () => {
                 <Wallet className="h-10 w-10 text-primary mx-auto mb-3" />
                 <h3 className="font-semibold mb-1">Full Control</h3>
                 <p className="text-sm text-muted-foreground">
-                  Transfer, mint, and manage with ease
+                  Mint, transfer, and burn with ease
                 </p>
               </CardContent>
             </Card>
@@ -98,20 +97,13 @@ const Index = () => {
           <TransferForm />
         </div>
 
-        {/* Expiry Timers */}
+        {/* Active Balances Summary */}
         {activeBalances && activeBalances.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">Token Expiry Timers</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {activeBalances.map((balance) => (
-                <ExpiryTimer
-                  key={balance.symbol}
-                  symbol={balance.symbol}
-                  expiryTimestamp={balance.expiryTimestamp}
-                  balance={balance.balanceFormatted}
-                />
-              ))}
-            </div>
+            <h2 className="text-xl font-semibold mb-4">Token Holdings</h2>
+            <p className="text-muted-foreground">
+              You hold {activeBalances.length} token type(s) with non-zero balances.
+            </p>
           </div>
         )}
       </div>

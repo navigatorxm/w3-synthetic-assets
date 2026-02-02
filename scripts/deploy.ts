@@ -13,12 +13,12 @@ async function main() {
   const factoryAddress = await factory.getAddress();
   console.log("✅ FlashFactory deployed to:", factoryAddress);
 
-  // Deploy tokens via factory
+  // Deploy tokens via factory (neutral naming, all 18 decimals)
   const tokens = [
-    { name: "Flash USDT", symbol: "USDT", decimals: 6 },
-    { name: "Flash BTC", symbol: "BTC", decimals: 8 },
-    { name: "Flash ETH", symbol: "ETH", decimals: 18 },
-    { name: "Flash BNB", symbol: "BNB", decimals: 18 },
+    { name: "Flash Asset Alpha", symbol: "FLA", decimals: 18 },
+    { name: "Flash Asset Beta", symbol: "FLB", decimals: 18 },
+    { name: "Flash Asset Gamma", symbol: "FLC", decimals: 18 },
+    { name: "Flash Asset Delta", symbol: "FLD", decimals: 18 },
   ];
 
   console.log("\n🪙 Deploying tokens...");
@@ -35,7 +35,7 @@ async function main() {
   console.log("\nFlashFactory:", factoryAddress);
   console.log("\nNext steps:");
   console.log("1. Open Admin Panel in the app");
-  console.log("2. Add your wallet as admin in Settings");
+  console.log("2. Go to Settings tab");
   console.log("3. Add token contracts with addresses above");
   console.log("========================================");
 }

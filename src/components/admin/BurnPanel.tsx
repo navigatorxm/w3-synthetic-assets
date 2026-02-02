@@ -51,7 +51,7 @@ export function BurnPanel() {
     defaultValues: {
       targetAddress: "",
       amount: "",
-      tokenSymbol: "USDT",
+      tokenSymbol: "FLA",
     },
   });
 
@@ -93,8 +93,7 @@ export function BurnPanel() {
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm flex items-start gap-2">
           <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <p>
-            Warning: Burning tokens is irreversible. Use this to remove expired
-            tokens or reclaim tokens from inactive accounts.
+            Warning: Burning tokens is irreversible. Use this to reclaim tokens from inactive accounts.
           </p>
         </div>
 

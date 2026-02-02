@@ -8,7 +8,7 @@ import "./FlashToken.sol";
  * @title FlashFactory
  * @dev Factory contract for deploying FlashToken instances
  * 
- * Manages the creation and registry of FlashAsset tokens.
+ * Manages the creation and registry of FlashToken assets.
  * Only the owner can create new tokens.
  */
 contract FlashFactory is Ownable {
