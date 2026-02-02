@@ -1,13 +1,15 @@
 import { useState, useCallback } from "react";
 import { parseUnits } from "ethers";
-import { useTokenContract } from "./useContract";
+import { createTokenContract } from "./useContract";
 import { useWalletStore } from "@/stores/walletStore";
+import { useWeb3 } from "@/providers/Web3Provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { TOKEN_METADATA } from "@/config/contracts";
 import { QUERY_KEYS, TX_CONFIRMATION_BLOCKS } from "@/config/constants";
 import { calculateExpiryTimestamp } from "@/lib/validation";
 import { toast } from "sonner";
 import type { TokenSymbol, TransactionType } from "@/types";
+import type { Contract } from "ethers";
 
 interface TransactionOptions {
   symbol: TokenSymbol;
@@ -28,12 +30,14 @@ export function useTransactions(): UseTransactionsReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { signer } = useWeb3();
+  const chainId = useWalletStore((state) => state.chainId);
   const { addPendingTransaction, updatePendingTransaction, removePendingTransaction } =
     useWalletStore();
 
   // Helper to wait for transaction confirmation
   const waitForConfirmation = async (
-    contract: ReturnType<typeof useTokenContract>["contract"],
+    contract: Contract,
     txHash: string,
     txId: string
   ) => {
@@ -63,7 +67,8 @@ export function useTransactions(): UseTransactionsReturn {
   // Mint tokens (admin only)
   const mint = useCallback(
     async ({ symbol, amount, to, expiryDays = 30 }: TransactionOptions) => {
-      const { contract } = useTokenContract(symbol);
+      // Create contract using utility function (not a hook)
+      const contract = createTokenContract(chainId, symbol, signer);
       
       if (!contract || !to) {
         toast.error("Contract not available or recipient missing");
@@ -109,13 +114,14 @@ export function useTransactions(): UseTransactionsReturn {
         setIsLoading(false);
       }
     },
-    [addPendingTransaction, updatePendingTransaction, removePendingTransaction, queryClient]
+    [chainId, signer, addPendingTransaction, updatePendingTransaction, removePendingTransaction, queryClient]
   );
 
   // Transfer tokens
   const transfer = useCallback(
     async ({ symbol, amount, to }: TransactionOptions) => {
-      const { contract } = useTokenContract(symbol);
+      // Create contract using utility function (not a hook)
+      const contract = createTokenContract(chainId, symbol, signer);
       
       if (!contract || !to) {
         toast.error("Contract not available or recipient missing");
@@ -159,13 +165,14 @@ export function useTransactions(): UseTransactionsReturn {
         setIsLoading(false);
       }
     },
-    [addPendingTransaction, updatePendingTransaction, removePendingTransaction, queryClient]
+    [chainId, signer, addPendingTransaction, updatePendingTransaction, removePendingTransaction, queryClient]
   );
 
   // Burn tokens (admin only)
   const burn = useCallback(
     async ({ symbol, amount, to }: TransactionOptions) => {
-      const { contract } = useTokenContract(symbol);
+      // Create contract using utility function (not a hook)
+      const contract = createTokenContract(chainId, symbol, signer);
       const targetAddress = to || useWalletStore.getState().address;
       
       if (!contract || !targetAddress) {
@@ -209,7 +216,7 @@ export function useTransactions(): UseTransactionsReturn {
         setIsLoading(false);
       }
     },
-    [addPendingTransaction, updatePendingTransaction, removePendingTransaction, queryClient]
+    [chainId, signer, addPendingTransaction, updatePendingTransaction, removePendingTransaction, queryClient]
   );
 
   return {
