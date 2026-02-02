@@ -99,6 +99,24 @@ export function QuickMintForm() {
     setIsSubmitting(true);
 
     try {
+      // CRITICAL: Verify contract bytecode exists at address before sending transaction
+      // This prevents sending calldata to an EOA (which causes "External transactions to internal accounts cannot include data" error)
+      const provider = signer.provider;
+      if (!provider) {
+        toast.error("Provider not available");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const bytecode = await provider.getCode(data.tokenAddress);
+      if (bytecode === "0x" || bytecode === "0x0" || !bytecode || bytecode.length <= 2) {
+        toast.error(
+          `No contract deployed at ${data.tokenAddress.slice(0, 10)}... on this network. Please verify the contract address in Settings.`
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       const contract = new Contract(data.tokenAddress, FLASH_TOKEN_ABI, signer);
       
       // Calculate amount with decimals
